@@ -1,0 +1,118 @@
+<?php
+/**
+ * @file
+ *   Implements the necessary hooks.
+ */
+
+
+/**
+ * Implements hook_menu().
+ */
+function smiley_menu() {
+  $items = array();
+  $items['admin/config/content/smiley'] = array(
+    'title' => 'Smileys',
+    'description' => 'Customize your smiley.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('smiley_overview_form'),
+    'access arguments' => array('administer smiley'),
+    'file' => 'smiley.admin.inc',
+  );
+  $items['admin/config/content/smiley/view'] = array(
+    'title' => 'View',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => -10,
+  );
+  $items['admin/config/content/smiley/settings'] = array(
+    'title' => 'Settings',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('smiley_settings_form'),
+    'access arguments' => array('administer smiley'),
+    'weight' => 0,
+    'type' => MENU_LOCAL_TASK,
+    'file' => 'smiley.admin.inc',
+  );
+  $items['admin/config/content/smiley/import'] = array(
+    'title' => 'Import',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('smiley_import_form'),
+    'access arguments' => array('administer smiley'),
+    'weight' => 1,
+    'type' => MENU_LOCAL_TASK,
+    'file' => 'smiley.admin.inc',
+  );
+  return $items;
+}
+
+
+/**
+ * Implements hook_theme().
+ */
+function smiley_theme() {
+  return array(
+    'smiley_overview_form' => array(
+      'file' => 'smiley.admin.inc',
+      'render element' => 'form',
+    )
+  );
+}
+
+
+/**
+ * Implements hook_permission().
+ */
+function smiley_permission() {
+  return array(
+    'administer smiley' => array(
+      'title' => t('Administer smiley'),
+      'restrict access' => TRUE,
+    ),
+  );
+}
+
+
+/**
+ * Implementation of hook_filter().
+ */
+function smiley_filter_info() {
+  $filters['smiley'] = array(
+    'title' => t('Smileys filter'),
+    'description' => t('Replaces textual smiley inside posts with images.'),
+    'process callback' => 'smiley_filter_process',
+  );
+  return $filters;
+}
+
+
+/**
+ * Smileys filter process callback
+ */
+function smiley_filter_process($text, $filter, $format) {
+  global $base_path;
+
+  $smileys = db_query('SELECT * FROM {smiley} WHERE status=1')->fetchAll();
+
+  $chunks = preg_split('#(</?(?:code|pre)[^>]*>)#i', $text, -1, PREG_SPLIT_DELIM_CAPTURE);
+
+  $output = '';
+  $ignore = 0;
+  $packs_path = variable_get('smiley_path', drupal_get_path('module', 'smiley') . '/packs');
+  foreach ($chunks AS $key => $chunk) {
+    if ($chunk == '<code>' || $chunk == '<pre>') {
+      $ignore++;
+    }
+    elseif ($chunk == '</code>' || $chunk == '</pre>') {
+      $ignore--;
+    }
+    // There are no unclosed code and pre tags.
+    elseif ($chunk && !$ignore) {
+      foreach ($smileys as $smiley) {
+        $image = '<img src="' . $base_path . $packs_path . '/' . $smiley->uri . '" alt="smiley"/>';
+        $chunk = str_replace(explode(' ', $smiley->acronyms), $image, $chunk);
+      }
+    }
+    $output .= $chunk;
+  }
+
+  return $output;
+}

@@ -1,0 +1,235 @@
+<?php
+
+/**
+ * @file mobile_app_generator.module
+ * Mobile App Generator Module.
+ */
+
+define('MAG_MAGIC_PATH', 'http://MAG-EXPORT');
+define('MAG_EXPORT_PATH', variable_get('mag_export_path', 'sites/all/export/www-mag'));
+define('MAG_REGEXP', variable_get('mag_regexp', '/^.*\.(jpg|png|js|css)/'));
+define('MAG_EXPORT_MENU', variable_get('mag_export_menu', 'main-menu'));
+define('MAG_OFFLINE_ALIAS', variable_get('mag_offline_alias', 'offline'));
+define('MAG_LAZY_MODE', variable_get('mag_lazy_mode', TRUE));
+
+/**
+ * Implements hook_permission().
+ */
+function mag_permission() {
+  return array(
+    'administer mobile app generator' => array(
+      'title' => t('Configure Mobile App Generator'), 
+      'description' => t('Perform administration tasks for Mobile App Generator.'),
+    ),
+    'use mobile app generator' => array(
+      'title' => t('Use Mobile App Generator'), 
+      'description' => t('Perform generation of mobile application.'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function mag_menu() {
+  $items['admin/mag'] = array(
+    'title' => 'Mobile App Generator',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('mag_settings_form'),
+    'access arguments' => array('administer mobile app generator'),
+    'file' => 'mag.admin.inc',
+      
+  );
+  $items['admin/mag/settings'] = array(
+    'title' => 'Mobile App Generator Settings',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+  );
+  $items['admin/mag/generate'] = array(
+    'title' => 'Generate Mobile App',
+    'page callback' => 'mag_export',
+    'access arguments' => array('use mobile app generator'),
+    'type' => MENU_LOCAL_TASK,
+  );
+  return $items;
+}
+
+function mag_init() {
+  $_GET['mag_q'] = $_GET['q'];
+}
+
+function mag_status_is_enabled($set = NULL) {
+  return (isset($_GET['mag']) && $_GET['mag'] === '1');
+}
+
+function mag_is_selected($q) {
+  return TRUE;
+}
+
+function _mag_copy_file($file, $export_path) {
+      $dest = $export_path . '/' . drupal_dirname($file);
+      file_prepare_directory($dest, FILE_CREATE_DIRECTORY);
+      file_unmanaged_copy($file, $dest, FILE_EXISTS_REPLACE);
+}
+
+function _mag_copy_dir($path, $export_path, $regexp) {
+  $files = file_scan_directory($path, $regexp);
+  foreach ($files as $file => $obj) {
+    _mag_copy_file($file, $export_path);
+  }
+}
+
+function _mag_export_url($path) {
+  $url = url($path, array('absolute' => TRUE, 'query' => array('mag' => 1)));
+  $status = drupal_http_request($url);
+}
+
+// TODO: Add batch API
+
+function mag_export() {
+  global $theme_path;
+
+  $regexp = MAG_REGEXP; 
+  $export_path = MAG_EXPORT_PATH;
+
+  if (!MAG_LAZY_MODE) {
+    // Copy all modules
+    foreach (module_list() as $module) {
+      $path = drupal_get_path('module', $module);
+      _mag_copy_dir($path, $export_path, $regexp);
+    } 
+    // Copy all files
+    _mag_copy_dir('sites/default/files', $export_path, $regexp);
+  }
+
+  // Copy active theme ...
+  _mag_copy_dir($theme_path, $export_path, $regexp);
+
+
+  // Export selected nodes
+  $menu_data = menu_tree(MAG_EXPORT_MENU);
+  foreach ($menu_data as $key => $item) {
+   if (isset($item['#href'])) {
+     _mag_export_url($item['#href']);
+   }
+  }
+  $export_url = file_create_url($export_path) . '/index.html';
+
+  return t('Successfully exported mobile app to !url.', array('!url' => l($export_url, $export_url)));
+}
+
+function mag_exit() {
+  // Save files ...
+  if (mag_status_is_enabled()) {
+
+    $files = &drupal_static('mag_export_files');
+
+    $export_path = MAG_EXPORT_PATH;
+    $regexp = MAG_REGEXP;
+
+    if (drupal_is_front_page()) {
+      $_GET['mag_q'] = '<front>';
+    }
+    $file = url($_GET['mag_q']);
+    $file = str_replace(MAG_MAGIC_PATH, '', $file);
+    $pattern = '.'; // actually count slashes
+
+    $page_data = ob_get_contents();
+    $page_data = str_replace(MAG_MAGIC_PATH, $pattern, $page_data);
+    
+    $dest = $export_path . '/' . $file;
+    $destdir = drupal_dirname($dest);
+    file_prepare_directory($destdir, FILE_CREATE_DIRECTORY);
+    file_put_contents($dest, $page_data);
+    ob_clean();
+    print $page_data;
+    
+    // Now save the rest of the files from the page load
+    
+    foreach ($files as $file => $tmp) {
+      if (is_dir($file)) {
+        _mag_copy_dir($file, $export_path, $regexp);
+      } else {
+        _mag_copy_file($file, $export_path);
+      }
+    }
+  }
+}
+
+/*
+function mag_url_inbound_alter(&$path, $original_path, $path_language) {
+  if (mag_status_is_enabled()) {
+    error_log('url_inbound:' . $path . ' - ' . $original_path); 
+  }
+}
+*/
+
+function mag_url_outbound_alter(&$path, &$options, $original_path) {
+  // FIXME: Check if in selected menu
+
+  if (mag_status_is_enabled()) {
+    $alias = null;
+
+    if ( strpos($path, 'node/') === 0 ) {
+      if (mag_is_selected($original_path)) {
+        $alias = drupal_get_path_alias($path);
+      }
+      else {
+        $alias = MAG_OFFLINE_ALIAS;
+      }
+    }
+    else if ($path == '<front>') {
+      $alias = 'index';
+    }
+    if (isset($alias)) {
+      $path = $alias . '.html';
+      $options['alias'] = TRUE;
+      $options['absolute'] = TRUE;
+      $options['base_url'] = MAG_MAGIC_PATH; 
+    }
+    if ( strpos($path, 'sites/all/libraries') === 0 ) {
+      $files = &drupal_static('mag_export_files');
+
+      $options['absolute'] = TRUE;
+      $options['base_url'] = MAG_MAGIC_PATH; 
+      $files[drupal_dirname($path)] = TRUE;
+    }
+    error_log('url_outbound:' . $path . ' - ' . $original_path); 
+  }
+}
+
+function mag_file_url_alter(&$original_uri) {
+  if (mag_status_is_enabled()) {
+    $scheme = file_uri_scheme($original_uri);
+
+    // If the current URI is an absolute or protocol-relevative URI, return
+    // immediately.
+    if (($scheme && ($scheme == 'http' || $scheme == 'https'))
+        || drupal_substr($original_uri, 0, 2) == '//'
+       )
+    {
+      return;
+    }
+    elseif ($scheme) {
+      // Attempt to get an external URL using the appropriate wrapper.
+      if ($wrapper = file_stream_wrapper_get_instance_by_uri($original_uri)) {
+        $uri = str_replace($GLOBALS['base_url'] . '/', '', $wrapper->getExternalUrl());
+      }
+      else {
+        return;
+      }
+    }
+    else {
+      $uri = $original_uri;
+    }
+
+    error_log('file:' . $uri);
+    $original_uri = MAG_MAGIC_PATH . '/' . $uri;
+    $files = &drupal_static('mag_export_files');
+
+    // Additionally download all other files from the module - if not copied already
+    if (MAG_LAZY_MODE && strpos($uri, '/modules/') !== FALSE) {
+      $files[dirname($uri)] = TRUE;
+    }
+    $files[$uri] = TRUE;
+  }
+}

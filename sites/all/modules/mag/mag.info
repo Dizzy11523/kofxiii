@@ -1,0 +1,10 @@
+name = Mobile App Generator
+description = Generates mobile application.
+core = 7.x
+
+; Information added by drupal.org packaging script on 2012-03-22
+version = "7.x-1.x-dev"
+core = "7.x"
+project = "mag"
+datestamp = "1332375872"
+
