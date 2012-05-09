@@ -1,11 +1,12 @@
-name = mobile_jquery
-description = mobile_jquery.
-package = Mobile
-version = 7.x-1.x
-core = 7.x
+name = 'Mobile jQuery'
+description = 'A jQuery Mobile inspired theme'
+version = '7.x-2.0-beta1'
+core = '7.x'
 
-scripts[] = 'scripts/script.js'
-stylesheets[all][] = 'styles/style.css'
+; Hiding the base theme
+hidden = 1
+
+stylesheets[all][] = 'styles/mobile_jquery.css'
 
 regions[header] = 'Header'
 regions[highlighted] = 'Highlighted'
@@ -15,9 +16,14 @@ regions[sidebar_second] = 'Secondary'
 regions[footer] = 'Footer'
 
 ;Settings
-settings[rebuild_registry] = 1
+settings[rebuild_registry] = 0
 settings[use_global] = 1
-settings[viewport] = 'width=device-width; initial-scale=1; maximum-scale=1.0; minimum-scale=1.0; user-scalable=0;'
+settings[viewport] = 1
+settings[viewport_width] = 'device-width'
+settings[viewport_initial_scale] = 1
+settings[viewport_min_scale] = 1
+settings[viewport_max_scale] = 1
+settings[viewport_user_scalable] = ''
 settings[global_icon] = 'arrow-r'
 settings[global_inset] = 'true'
 settings[global_theme] = 'a'
@@ -47,6 +53,7 @@ settings[footer_data_position] = 'inline'
 ;Exclude
 ;javascript
 exclude[js][] = 'modules/contextual/contextual.js'
+exclude[js][] = 'modules/toolbar/toolbar.js'
 
 ;css
 exclude[css][] = 'misc/vertical-tabs.css'
@@ -79,18 +86,11 @@ exclude[css][] = 'modules/taxonomy/taxonomy.css'
 exclude[css][] = 'modules/tracker/tracker.css'
 exclude[css][] = 'modules/update/update.css'
 exclude[css][] = 'modules/user/user.css'
+exclude[css][] = 'modules/toolbar/toolbar.css'
 
-
-; Information added by drupal.org packaging script on 2011-09-23
-version = "7.x-1.0-beta1"
+; Information added by drupal.org packaging script on 2012-04-18
+version = "7.x-2.0-beta1"
 core = "7.x"
 project = "mobile_jquery"
-datestamp = "1316796407"
-
-
-; Information added by drupal.org packaging script on 2011-09-29
-version = "7.x-1.1-beta1"
-core = "7.x"
-project = "mobile_jquery"
-datestamp = "1317302208"
+datestamp = "1334727398"
 

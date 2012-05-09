@@ -1,4 +1,8 @@
 <?php
+/**
+ * @file
+ * Contains theme override functions and preprocess functions for the mobile_jquery theme.
+ */
 
 /**
  * Returns HTML for the vocabulary overview form as a sortable list of vocabularies.
@@ -26,7 +30,7 @@ function mobile_jquery_taxonomy_overview_vocabularies($vars) {
         $row[] = drupal_render($vocabulary['weight']);
       }
       $vocabulary['edit']['#attributes'] += array('data-role' => 'button', 'data-icon' => 'edit', 'data-iconpos' => 'notext');
-			$vocabulary['list']['#attributes'] += array('data-role' => 'button', 'data-icon' => 'list', 'data-iconpos' => 'notext');
+      $vocabulary['list']['#attributes'] += array('data-role' => 'button', 'data-icon' => 'list', 'data-iconpos' => 'notext');
       $vocabulary['add']['#attributes'] += array('data-role' => 'button', 'data-icon' => 'add', 'data-iconpos' => 'notext');
 
       $row[] = drupal_render($vocabulary['edit']);
@@ -41,7 +45,7 @@ function mobile_jquery_taxonomy_overview_vocabularies($vars) {
     $header[] = t('Weight');
   }
   $header[] = array('data' => t('Operations'), 'colspan' => '3');
-  return theme('table', array('header' => $header, 'rows' => $rows, 'empty' => t('No vocabularies available. <a href="@link">Add vocabulary</a>.', array('@link' => url('admin/structure/taxonomy/add'))), 'attributes' => array('id' => 'taxonomy'))) . drupal_render_children($form);
+  return theme('table', array('header' => $header, 'rows' => $rows, 'empty' => t('No vocabularies available. <a href="@link">Add vocabulary</a>. ', array('@link' => url('admin/structure/taxonomy/add'))), 'attributes' => array('id' => 'taxonomy'))) . drupal_render_children($form);
 }
 
 /**
@@ -57,10 +61,10 @@ function mobile_jquery_taxonomy_overview_vocabularies($vars) {
 function mobile_jquery_taxonomy_overview_terms($vars) {
   $form = $vars['form'];
 
-  $page_increment  = $form['#page_increment'];
-  $page_entries    = $form['#page_entries'];
-  $back_step     = $form['#back_step'];
-  $forward_step  = $form['#forward_step'];
+  $page_increment = $form['#page_increment'];
+  $page_entries   = $form['#page_entries'];
+  $back_step    = $form['#back_step'];
+  $forward_step = $form['#forward_step'];
 
   // Add drag and drop if parent fields are present in the form.
   if ($form['#parent_fields']) {
@@ -79,7 +83,7 @@ function mobile_jquery_taxonomy_overview_terms($vars) {
       $term = &$form[$key];
 
       $row = array();
-      $row[] = (isset($term['#term']['depth']) && $term['#term']['depth'] > 0 ? theme('indentation', array('size' => $term['#term']['depth'])) : ''). drupal_render($term['view']);
+      $row[] = (isset($term['#term']['depth']) && $term['#term']['depth'] > 0 ? theme('indentation', array('size' => $term['#term']['depth'])) : '') . drupal_render($term['view']);
       if ($form['#parent_fields']) {
         $term['tid']['#attributes']['class'] = array('term-id');
         $term['parent']['#attributes']['class'] = array('term-parent');

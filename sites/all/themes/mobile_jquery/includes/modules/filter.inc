@@ -1,4 +1,8 @@
 <?php
+/**
+ * @file
+ * Contains theme override functions and preprocess functions for the mobile_jquery theme.
+ */
 
 /**
  * Returns HTML for a link to the more extensive filter tips.
@@ -7,11 +11,11 @@
  */
 function mobile_jquery_filter_tips_more_info() {
   $options = array(
-	  'attributes' => array(
-	    'data-rel' => 'dialog',
-	    'data-transition' => 'pop',
-	    'data-role' => 'button',
-	    'data-inline' => 'true',
+    'attributes' => array(
+      'data-rel' => 'dialog',
+      'data-transition' => 'pop',
+      'data-role' => 'button',
+      'data-inline' => 'true',
     ), 
   );
   return '<p>' . l(t('More information about text formats'), 'filter/tips', $options) . '</p>';
@@ -29,7 +33,7 @@ function mobile_jquery_filter_tips_more_info() {
  *       array(
  *         'Full HTML' => array(
  *           0 => array(
- *             'tip' => 'Web page addresses and e-mail addresses turn into links automatically.',
+ *             'tip' => 'Web page addresses and e-mail addresses turn into links automatically. ',
  *             'id' => 'filter/2',
  *           ),
  *         ),

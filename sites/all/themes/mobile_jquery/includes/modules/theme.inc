@@ -1,4 +1,8 @@
 <?php
+/**
+ * @file
+ * Contains theme override functions and preprocess functions for the mobile_jquery theme.
+ */
 
 /**
  * Returns HTML for a list or nested list of items.
@@ -16,18 +20,19 @@
  *   - attributes: The attributes applied to the list element.
  */
 function mobile_jquery_item_list($vars) {
+  $use_global = mobile_jquery_theme_get_setting('use_global');
   $items = $vars['items'];
   $title = $vars['title'];
   $type = $vars['type'];
   
   $attributes = $vars['attributes'];
   $attributes['data-role'] = 'listview'; 
-  $attributes['data-inset'] = mobile_jquery_theme_get_setting('use_global') ? mobile_jquery_theme_get_setting('global_inset') : mobile_jquery_theme_get_setting('list_item_inset'); 
-  $attributes['data-theme'] = mobile_jquery_theme_get_setting('use_global') ? mobile_jquery_theme_get_setting('global_theme') : mobile_jquery_theme_get_setting('list_item_theme');
-  $attributes['data-divider-theme'] = mobile_jquery_theme_get_setting('use_global') ? mobile_jquery_theme_get_setting('global_theme') : mobile_jquery_theme_get_setting('list_item_dividertheme');
-  $attributes['data-count-theme'] = mobile_jquery_theme_get_setting('use_global') ? mobile_jquery_theme_get_setting('global_theme') : mobile_jquery_theme_get_setting('list_item_counttheme');
-  $attributes['data-split-theme'] = mobile_jquery_theme_get_setting('use_global') ? mobile_jquery_theme_get_setting('global_theme') : mobile_jquery_theme_get_setting('list_item_splittheme');
-  $attributes['data-split-icon'] = mobile_jquery_theme_get_setting('use_global') ? mobile_jquery_theme_get_setting('global_icon') : mobile_jquery_theme_get_setting('list_item_spliticon');
+  $attributes['data-inset'] = $use_global ? mobile_jquery_theme_get_setting('global_inset') : mobile_jquery_theme_get_setting('list_item_inset'); 
+  $attributes['data-theme'] = $use_global ? mobile_jquery_theme_get_setting('global_theme') : mobile_jquery_theme_get_setting('list_item_theme');
+  $attributes['data-divider-theme'] = $use_global ? mobile_jquery_theme_get_setting('global_theme') : mobile_jquery_theme_get_setting('list_item_dividertheme');
+  $attributes['data-count-theme'] = $use_global ? mobile_jquery_theme_get_setting('global_theme') : mobile_jquery_theme_get_setting('list_item_counttheme');
+  $attributes['data-split-theme'] = $use_global ? mobile_jquery_theme_get_setting('global_theme') : mobile_jquery_theme_get_setting('list_item_splittheme');
+  $attributes['data-split-icon'] = $use_global ? mobile_jquery_theme_get_setting('global_icon') : mobile_jquery_theme_get_setting('list_item_spliticon');
 
   $output = '';
 
@@ -59,7 +64,7 @@ function mobile_jquery_item_list($vars) {
         $data = $item;
       }
       
-      $list_attributes['data-icon'] = mobile_jquery_theme_get_setting('use_global') ? mobile_jquery_theme_get_setting('global_icon') : mobile_jquery_theme_get_setting('list_item_icon');
+      $list_attributes['data-icon'] = $use_global ? mobile_jquery_theme_get_setting('global_icon') : mobile_jquery_theme_get_setting('list_item_icon');
       
       if (count($children) > 0) {
         // Render nested list.
@@ -119,7 +124,7 @@ function mobile_jquery_more_help_link($vars) {
  *   - title: A descriptive verb for the link, like 'Read more'.
  */
 function mobile_jquery_more_link($variables) {
-  return '<div class="more-link">' . l(t('More'), $variables['url'], array('attributes' => array('title' => $variables['title'],'data-role' => 'button', 'data-icon' => 'arrow-r', 'data-iconpos' => 'right'))) . '</div>';
+  return '<div class="more-link">' . l(t('More'), $variables['url'], array('attributes' => array('title' => $variables['title'], 'data-role' => 'button', 'data-icon' => 'arrow-r', 'data-iconpos' => 'right'))) . '</div>';
 }
 
 /**
@@ -177,23 +182,23 @@ function mobile_jquery_status_messages($vars) {
     'error' => t('Error message'),
     'warning' => t('Warning message'),
   );
-  foreach (drupal_get_messages($display) as $type => $messages) {
-    $output .= "<div class=\"messages $type\">\n";
-    if (!empty($status_heading[$type])) {
-      $output .= '<h2 class="element-invisible">' . $status_heading[$type] . "</h2>\n";
-    }
-    if (count($messages) > 1) {
-      $output .= " <ul>\n";
-      foreach ($messages as $message) {
-        $output .= '  <li>' . $message . "</li>\n";
+    foreach (drupal_get_messages($display) as $type => $messages) {
+      $output .= "<div class=\"ui-body ui-body-$type messages $type\">\n";
+      if (!empty($status_heading[$type])) {
+        $output .= '<h2 class="element-invisible">' . $status_heading[$type] . "</h2>\n";
       }
-      $output .= " </ul>\n";
+      if (count($messages) > 1) {
+        $output .= " <ul>\n";
+        foreach ($messages as $message) {
+          $output .= '  <li>' . $message . "</li>\n";
+        }
+        $output .= " </ul>\n";
+      }
+      else {
+        $output .= $messages[0];
+      }
+      $output .= "</div>\n";
     }
-    else {
-      $output .= $messages[0];
-    }
-    $output .= "</div>\n";
-  }
   return $output;
 }
 
@@ -210,29 +215,35 @@ function mobile_jquery_status_messages($vars) {
  * or process functions or override this theme implementation.
  *
  * @param $vars
- *   An associative array containing the keys 'text', 'path', and 'options'. See
+ *   An associative array containing the keys 'text', 'path', and 'options' . See
  *   the l() function for information about these variables.
  *
  * @see l()
  */
 function mobile_jquery_link($vars) {
+  if (variable_get('admin_theme', 0) != 0 || variable_get('theme_default', '') != variable_get('admin_theme', 0)) {
+      if (path_is_admin($vars['path'])) {
+        $vars['options']['attributes']['data-ajax'] = 'false';
+      }
+  }
   return '<a href="' . check_plain(url($vars['path'], $vars['options'])) . '"' . drupal_attributes($vars['options']['attributes']) . '>' . ($vars['options']['html'] ? $vars['text'] : check_plain($vars['text'])) . '</a>';
 }
 
 function mobile_jquery_links($vars) {
   global $language_url;
+  $use_global = mobile_jquery_theme_get_setting('use_global');
 
   $links = $vars['links'];
   $heading = $vars['heading'];
   $attributes = $vars['attributes'];
 
   $attributes['data-role'] = 'listview'; 
-  $attributes['data-inset'] = mobile_jquery_theme_get_setting('use_global') ? mobile_jquery_theme_get_setting('global_inset') : mobile_jquery_theme_get_setting('menu_item_inset'); 
-  $attributes['data-theme'] = mobile_jquery_theme_get_setting('use_global') ? mobile_jquery_theme_get_setting('global_theme') : mobile_jquery_theme_get_setting('menu_item_theme');
-  $attributes['data-divider-theme'] = mobile_jquery_theme_get_setting('use_global') ? mobile_jquery_theme_get_setting('global_theme') : mobile_jquery_theme_get_setting('menu_item_dividertheme');
-  $attributes['data-count-theme'] = mobile_jquery_theme_get_setting('use_global') ? mobile_jquery_theme_get_setting('global_theme') : mobile_jquery_theme_get_setting('menu_item_counttheme');
-  $attributes['data-split-theme'] = mobile_jquery_theme_get_setting('use_global') ? mobile_jquery_theme_get_setting('global_theme') : mobile_jquery_theme_get_setting('menu_item_splittheme');
-  $attributes['data-split-icon'] = mobile_jquery_theme_get_setting('use_global') ? mobile_jquery_theme_get_setting('global_icon') : mobile_jquery_theme_get_setting('menu_item_spliticon');
+  $attributes['data-inset'] = $use_global ? mobile_jquery_theme_get_setting('global_inset') : mobile_jquery_theme_get_setting('menu_item_inset'); 
+  $attributes['data-theme'] = $use_global ? mobile_jquery_theme_get_setting('global_theme') : mobile_jquery_theme_get_setting('menu_item_theme');
+  $attributes['data-divider-theme'] = $use_global ? mobile_jquery_theme_get_setting('global_theme') : mobile_jquery_theme_get_setting('menu_item_dividertheme');
+  $attributes['data-count-theme'] = $use_global ? mobile_jquery_theme_get_setting('global_theme') : mobile_jquery_theme_get_setting('menu_item_counttheme');
+  $attributes['data-split-theme'] = $use_global ? mobile_jquery_theme_get_setting('global_theme') : mobile_jquery_theme_get_setting('menu_item_splittheme');
+  $attributes['data-split-icon'] = $use_global ? mobile_jquery_theme_get_setting('global_icon') : mobile_jquery_theme_get_setting('menu_item_spliticon');
 
   $output = '';
   
@@ -264,7 +275,7 @@ function mobile_jquery_links($vars) {
     foreach ($links as $key => $link) {
       $class = array($key);
       $list_attributes = array();
-      $list_attributes['data-icon'] = mobile_jquery_theme_get_setting('use_global') ? mobile_jquery_theme_get_setting('global_icon') : mobile_jquery_theme_get_setting('list_item_icon');
+      $list_attributes['data-icon'] = $use_global ? mobile_jquery_theme_get_setting('global_icon') : mobile_jquery_theme_get_setting('list_item_icon');
 
       // Add first, last and active classes to the list of links to help out themers.
       if ($i == 1) {
@@ -308,68 +319,67 @@ function mobile_jquery_links($vars) {
 
 
 function mobile_jquery_links__node($vars) {
-	$links = $vars['links'];
-	$output = '<div data-role="controlgroup" data-type="horizontal">';
+  $links = $vars['links'];
+  $output = '<div data-role="controlgroup" data-type="horizontal">';
 
-	foreach($links as $link => $value) {
-		if(!isset($links[$link]['attributes'])) {
-			$links[$link]['attributes'] = array();
-		}
-		if($link != 'comment_forbidden') {
-			$links[$link]['attributes']['data-role'] = 'button';
-			$links[$link]['attributes']['data-icon'] = $link;
-		}
-		
-		$output .= l($links[$link]['title'], $links[$link]['href'], array('attributes' => $links[$link]['attributes'], 'html' => TRUE));
-	}
-	
-	$output .= '</div>';
-	
-	return $output;
+  foreach ($links as $link => $value) {
+    if (!isset($links[$link]['attributes'])) {
+      $links[$link]['attributes'] = array();
+    }
+    if ($link != 'comment_forbidden') {
+      $links[$link]['attributes']['data-role'] = 'button';
+      $links[$link]['attributes']['data-icon'] = $link;
+    }
+    
+    $output .= l($links[$link]['title'], $links[$link]['href'], array('attributes' => $links[$link]['attributes'], 'html' => TRUE));
+  }
+  
+  $output .= '</div>';
+  
+  return $output;
 }
 
 function mobile_jquery_links__contextual($vars) {
-	$output = '';
-	$links = $vars['links'];
-	
-	foreach($links as $link => $value) {
-		$path = explode('/', $links[$link]['href']);
-		$icon = $path[count($path)-1];
-		
-		$attributes = array(
-			'data-role' => 'button', 
-			'data-iconpos' => 'notext', 
-			'data-icon' => $icon,
-		);
-		if($icon == 'delete') {
-			$attributes['data-rel'] = 'dialog';
-		}
-		$output .= l($links[$link]['title'], $links[$link]['href'], array('title' => $links[$link]['title'],'attributes' => $attributes));
-	}
-	
-	return $output;
+  $output = '';
+  $links = $vars['links'];
+  
+  foreach ($links as $link => $value) {
+    $path = explode('/', $links[$link]['href']);
+    $icon = $path[count($path)-1];
+    
+    $attributes = array(
+      'data-role' => 'button', 
+      'data-iconpos' => 'notext', 
+      'data-icon' => $icon,
+    );
+    if ($icon == 'delete') {
+      $attributes['data-rel'] = 'dialog';
+    }
+    $output .= l($links[$link]['title'], $links[$link]['href'], array('title' => $links[$link]['title'], 'attributes' => $attributes));
+  }
+  
+  return $output;
 }
 
 function mobile_jquery_links__comment($vars) {
-	$links = $vars['links'];
-	$output = '<div data-role="controlgroup" data-type="horizontal">';
-	print_r($links);
-	foreach($links as $link => $value) {
-		if(!isset($links[$link]['attributes'])) {
-			$links[$link]['attributes'] = array();
-		}
+  $links = $vars['links'];
+  $output = '<div data-role="controlgroup" data-type="horizontal">';
+  foreach ($links as $link => $value) {
+    if (!isset($links[$link]['attributes'])) {
+      $links[$link]['attributes'] = array();
+    }
 
-		if($link != 'comment_forbidden') {
-			$icon = explode('-', $link);
-			$links[$link]['attributes']['data-role'] = 'button';
-			$links[$link]['attributes']['data-icon'] = $icon[1];
-		}
-		$output .= l($links[$link]['title'], $links[$link]['href'], array('attributes' => $links[$link]['attributes'], 'html' => TRUE));
-	}
-	
-	$output .= '</div>';
-	
-	return $output;
+    if ($link != 'comment_forbidden') {
+      $icon = explode('-', $link);
+      $links[$link]['attributes']['data-role'] = 'button';
+      $links[$link]['attributes']['data-icon'] = $icon[1];
+    }
+    $output .= l($links[$link]['title'], $links[$link]['href'], array('attributes' => $links[$link]['attributes'], 'html' => TRUE));
+  }
+  
+  $output .= '</div>';
+  
+  return $output;
 }
 
 function mobile_jquery_links__poll_results($vars) {
@@ -619,23 +629,23 @@ function mobile_jquery_feed_icon($vars) {
 }
 
 function mobile_jquery_css_alter(&$css) {
-	$excludes = _mobile_jquery_alter(mobile_jquery_theme_get_info('exclude'), 'css');
+  $excludes = _mobile_jquery_alter(mobile_jquery_theme_get_info('exclude'), 'css');
   $css = array_diff_key($css, $excludes);
 }
  
 
 function mobile_jquery_js_alter(&$js) {
-	$excludes = _mobile_jquery_alter(mobile_jquery_theme_get_info('exclude'), 'js');
+  $excludes = _mobile_jquery_alter(mobile_jquery_theme_get_info('exclude'), 'js');
   $js = array_diff_key($js, $excludes);
 }
 
 
 function _mobile_jquery_alter($files, $type) {
-	$output = array();
-  foreach($files as $key => $value) {
-	  foreach($files[$key][$type] as $file => $name) {
-		  $output[$name] = FALSE;
-	  }
+  $output = array();
+  foreach ($files as $key => $value) {
+    foreach ($files[$key][$type] as $file => $name) {
+      $output[$name] = FALSE;
+    }
   }
   return $output;
 }

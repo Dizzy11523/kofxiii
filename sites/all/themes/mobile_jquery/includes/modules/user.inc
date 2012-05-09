@@ -1,4 +1,8 @@
 <?php
+/**
+ * @file
+ * Contains theme override functions and preprocess functions for the mobile_jquery theme.
+ */
 
 /**
  * Returns HTML for a list of users.
@@ -36,34 +40,34 @@ function mobile_jquery_user_list($vars) {
 function mobile_jquery_user_admin_permissions($vars) {
   $form = $vars['form'];
   
-  if(count($vars['form']['role_names']['#value']) == 1) {
-	  $output = mobile_jquery_user_admin_permissions_role($form);
+  if (count($vars['form']['role_names']['#value']) == 1) {
+    $output = mobile_jquery_user_admin_permissions_role($form);
   }
-	else {
-	  $roles = user_roles();
-	  $output = '';
-	  $idx = 0;
-	  foreach (element_children($form['permission']) as $key) {
-		  if (is_numeric($key)) {
-  		  if ($idx > 0) {
-				  $output .= '</div>';
-			  }
-				$output .= '<div data-role="collapsible" data-collapsed="true">';
-			  $output .= '<h3>' . drupal_render($form['permission'][$key]) . '</h3>';
-		  }
-		  else {
-		    $output .= '<div data-role="collapsible" data-collapsed="true">';
-	
-			  $output .= '<h3>' . strip_tags($form['permission'][$key]['#markup']) . '</h3>';
-	      foreach (element_children($form['checkboxes']) as $rid) {
-	        $form['checkboxes'][$rid][$key]['#title'] = $roles[$rid] . ': ' . strip_tags($form['permission'][$key]['#markup']);
-	        $output .= drupal_render($form['checkboxes'][$rid][$key]);
-	        
-	      }
-		    $output .= '</div>';
-		  }
-	  $idx++;
-	  }
+  else {
+    $roles = user_roles();
+    $output = '';
+    $idx = 0;
+    foreach (element_children($form['permission']) as $key) {
+      if (is_numeric($key)) {
+        if ($idx > 0) {
+          $output .= '</div>';
+        }
+        $output .= '<div data-role="collapsible" data-collapsed="true">';
+        $output .= '<h3>' . drupal_render($form['permission'][$key]) . '</h3>';
+      }
+      else {
+        $output .= '<div data-role="collapsible" data-collapsed="true">';
+  
+        $output .= '<h3>' . strip_tags($form['permission'][$key]['#markup']) . '</h3>';
+        foreach (element_children($form['checkboxes']) as $rid) {
+          $form['checkboxes'][$rid][$key]['#title'] = $roles[$rid] . ': ' . strip_tags($form['permission'][$key]['#markup']);
+          $output .= drupal_render($form['checkboxes'][$rid][$key]);
+          
+        }
+        $output .= '</div>';
+      }
+    $idx++;
+    }
   $output .= '</div>';
   }
   // We've rendered these already, no need to do it again.
@@ -79,32 +83,32 @@ function mobile_jquery_user_admin_permissions($vars) {
 }
 
 function mobile_jquery_user_admin_permissions_role($form) {
-	$roles = user_roles();
-	
+  $roles = user_roles();
+  
   $output = '';
 $idx = 0;
   foreach (element_children($form['permission']) as $key) {
 
-	  if (is_numeric($key)) {
-		  if ($idx > 0) {
-			  $output .= '</div>';
-		  }
-	    $output .= '<div data-role="collapsible" data-collapsed="true">';
+    if (is_numeric($key)) {
+      if ($idx > 0) {
+        $output .= '</div>';
+      }
+      $output .= '<div data-role="collapsible" data-collapsed="true">';
 
-		  $output .= '<h3>' . $form['permission'][$key]['#markup'] . '</h3>';
-	  }
-	  else {
+      $output .= '<h3>' . $form['permission'][$key]['#markup'] . '</h3>';
+    }
+    else {
       foreach (element_children($form['checkboxes']) as $rid) {
         $form['checkboxes'][$rid][$key]['#title'] = strip_tags($form['permission'][$key]['#markup']);
         $output .= '<div>' . drupal_render($form['checkboxes'][$rid][$key]) . '</div>';
         
       }
 
-	  }
-	  $idx++;
+    }
+    $idx++;
   }
   $output .= '</div>';
-	  
+    
   return $output;
 }
 

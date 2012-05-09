@@ -1,4 +1,8 @@
 <?php
+/**
+ * @file
+ * Contains theme override functions and preprocess functions for the mobile_jquery theme.
+ */
 
 /**
  * Returns HTML for a shortcut set customization form.

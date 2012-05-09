@@ -54,7 +54,7 @@
  *
  * To check for all available data within $info_split, use the code below.
  * @code
- *   <?php print '<pre>'. check_plain(print_r($info_split, 1)) .'</pre>'; ?>
+ *   <?php print '<pre>' . check_plain(print_r($info_split, 1)) . '</pre>'; ?>
  * @endcode
  *
  * @see template_preprocess()

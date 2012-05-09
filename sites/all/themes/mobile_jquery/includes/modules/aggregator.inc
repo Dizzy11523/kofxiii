@@ -1,4 +1,8 @@
 <?php
+/**
+ * @file
+ * Contains theme override functions and preprocess functions for the mobile_jquery theme.
+ */
 
 /**
  * Returns HTML for an individual feed item for display in the block.
@@ -14,7 +18,7 @@ function mobile_jquery_aggregator_block_item($vars) {
   // Display the external link to the item.
   
   $attributes = array(
-	  'rel' => 'external',
+    'rel' => 'external',
   );
   
   return l(check_plain($vars['item']->title), check_url($vars['item']->link), array('attributes' => $attributes));

@@ -1,17 +1,24 @@
 <?php
-
-global $theme_key;
-
-include_once(dirname(__FILE__) . '/includes/mobile_jquery.inc');
-include_once(dirname(__FILE__) . '/includes/modules/theme.inc');
-include_once(dirname(__FILE__) . '/includes/modules/pager.inc');
-include_once(dirname(__FILE__) . '/includes/modules/form.inc');
+/**
+ * @file
+ * Contains theme override functions and preprocess functions for the mobile_jquery theme.
+ *
+ * IMPORTANT WARNING: DO NOT MODIFY THIS FILE.
+ *
+ * The base mobile_jquery theme is designed to be easily extended by its sub-themes.
+ * You shouldn't modify this or any of the CSS or PHP files in the root mobile_jquery folder.
+ */
+ 
+include_once(drupal_get_path('theme', 'mobile_jquery') . '/includes/mobile_jquery.inc');
+include_once(drupal_get_path('theme', 'mobile_jquery') . '/includes/modules/theme.inc');
+include_once(drupal_get_path('theme', 'mobile_jquery') . '/includes/modules/pager.inc');
+include_once(drupal_get_path('theme', 'mobile_jquery') . '/includes/modules/form.inc');
 
 $modules = module_list();
 
 foreach ($modules as $module) {
-  if (is_file(drupal_get_path('theme', $theme_key) . '/includes/modules/' . str_replace('_', '-', $module) . '.inc')) {
-    include_once(drupal_get_path('theme', $theme_key) . '/includes/modules/' . str_replace('_', '-', $module) . '.inc');
+  if (is_file(drupal_get_path('theme', 'mobile_jquery') . '/includes/modules/' . str_replace('_', '-', $module) . '.inc')) {
+    include_once(drupal_get_path('theme', 'mobile_jquery') . '/includes/modules/' . str_replace('_', '-', $module) . '.inc');
   }    
 } 
 
@@ -19,8 +26,7 @@ foreach ($modules as $module) {
  * Preprocess Functions
  *
  */
-
-
+ 
 /**
  * Preprocess variables for html.tpl.php
  *
@@ -29,35 +35,40 @@ foreach ($modules as $module) {
  */
 function mobile_jquery_preprocess_html(&$vars) {
 
-	$vars['viewport'] = mobile_jquery_theme_get_setting('viewport') ? mobile_jquery_theme_get_setting('viewport') : '';
+  $vars['viewport'] = implode(',', mobile_jquery_get_viewport());
 
-	$vars['jqm_scripts'] = '';
-	if (module_exists('jquerymobile_ui')) {
-		$vars['jqm_scripts'] = jquerymobile_ui_load_files();
-	}
-	else{
-	 $css_options = array(
-	    'type' => 'file', 
-	    'group' => CSS_THEME, 
-	    'weight' => 100, 
-	    'every_page' => TRUE, 
-	    'media' => 'all', 
-	    'preprocess' => FALSE, 
-	  );
-	  $js_options = array(
-			'type' => 'file', 
-			'scope' => 'header', 
-			'group' => JS_THEME, 
-			'every_page' => TRUE, 
-			'preprocess' => TRUE, 
-			'cache' => TRUE, 
-			'defer' => FALSE,
-	  );
-	 drupal_add_css('sites/all/libraries/jquery.mobile-1.0b1/jquery.mobile-1.0b1.css', $css_options);
-	 drupal_add_js('sites/all/libraries/jquery-1.6.2.js', array_merge($js_options, array('weight' => 100)));
-	 drupal_add_js(path_to_theme() . '/scripts/mobile_jquery.js', array_merge($js_options, array('weight' => 101)));
-	 drupal_add_js('sites/all/libraries/jquery.mobile-1.0b1/jquery.mobile-1.0b1.js', array_merge($js_options, array('weight' => 101)));
-	}
+  if (module_exists('jquerymobile')) {
+    jquerymobile_load_files();
+  }
+  else {
+   $css_options = array(
+      'type' => 'file', 
+      'group' => CSS_THEME, 
+      'every_page' => TRUE, 
+      'media' => 'all', 
+      'preprocess' => FALSE, 
+    );
+    $js_options = array(
+      'type' => 'file', 
+      'scope' => 'header', 
+      'group' => JS_THEME, 
+      'every_page' => TRUE, 
+      'preprocess' => TRUE, 
+      'cache' => TRUE, 
+      'defer' => FALSE,
+    );
+   drupal_add_css('http://code.jquery.com/mobile/1.0.1/jquery.mobile.structure-1.0.1.min.css', array_merge($css_options, array('weight' => 100)));
+   drupal_add_css('http://code.jquery.com/mobile/1.0.1/jquery.mobile-1.0.1.min.css', array_merge($css_options, array('weight' => 100)));
+   drupal_add_js('http://code.jquery.com/jquery-1.6.4.min.js', array_merge($js_options, array('weight' => 100)));
+   drupal_add_js(drupal_get_path('theme', 'mobile_jquery') . '/scripts/mobile_jquery.js', array_merge($js_options, array('weight' => 101)));
+   drupal_add_js('http://code.jquery.com/mobile/1.0.1/jquery.mobile-1.0.1.min.js', array_merge($js_options, array('weight' => 101)));
+   } 
+  $vars['styles'] = drupal_get_css();
+
+   if (isset($vars['page']['page_top']['toolbar'])) {
+     $vars['page']['page_bottom']['toolbar'] = $vars['page']['page_top']['toolbar'];
+     unset($vars['page']['page_top']['toolbar']);
+   }   
 }
 
 /**
@@ -79,36 +90,39 @@ function mobile_jquery_preprocess_html(&$vars) {
  */
 function mobile_jquery_preprocess_page(&$vars) {
   $vars['page']['attributes_array'] = array();
+  $use_global = mobile_jquery_theme_get_setting('use_global');
 
-	$classes = array('page');
-	
-	if ($vars['is_front']) {
-	  $classes[] = 'type-home';
-	} 
-	else {
-	  $classes[] = 'type-interior';
-	}
+  $classes = array('page');
+  
+  if ($vars['is_front']) {
+    $classes[] = 'type-home';
+  } 
+  else {
+    $classes[] = 'type-interior';
+  }
 
-	$vars['page']['attributes_array']['page'] = array(
-		'data-theme' => mobile_jquery_theme_get_setting('use_global') ? mobile_jquery_theme_get_setting('global_theme') : '',
-	  'data-role' => 'page',
-	  'class' => implode(' ', $classes),
-	);
-	$vars['page']['attributes_array']['header'] = array(
-		'data-theme' => mobile_jquery_theme_get_setting('use_global') ? mobile_jquery_theme_get_setting('global_theme') : mobile_jquery_theme_get_setting('header_data_theme'),
-		'data-position' => mobile_jquery_theme_get_setting('global_header_data_position') ? mobile_jquery_theme_get_setting('global_header_data_position') : mobile_jquery_theme_get_setting('header_data_position'),
-	  'data-role' => 'header',
-	);
-	$vars['page']['attributes_array']['content'] = array(
-		'data-theme' => mobile_jquery_theme_get_setting('use_global') ? mobile_jquery_theme_get_setting('global_theme') : mobile_jquery_theme_get_setting('content_data_theme'),
-	  'data-role' => 'content',
-	);
-	$vars['page']['attributes_array']['footer'] = array(
-		'data-theme' => mobile_jquery_theme_get_setting('use_global') ? mobile_jquery_theme_get_setting('global_theme') : mobile_jquery_theme_get_setting('footer_data_theme'),
-		'data-position' => mobile_jquery_theme_get_setting('global_footer_data_position') ? mobile_jquery_theme_get_setting('global_footer_data_position') : mobile_jquery_theme_get_setting('footer_data_position'),
-	  'data-role' => 'footer',
-	);
-
+  $vars['page']['attributes_array']['page'] = array(
+    'data-theme' => $use_global ? mobile_jquery_theme_get_setting('global_theme') : '',
+    'data-role' => 'page',
+    'class' => implode(' ', $classes),
+  );
+  $vars['page']['attributes_array']['header'] = array(
+    'data-theme' => $use_global ? mobile_jquery_theme_get_setting('global_theme') : mobile_jquery_theme_get_setting('header_data_theme'),
+    'data-position' => mobile_jquery_theme_get_setting('global_header_data_position') ? mobile_jquery_theme_get_setting('global_header_data_position') : mobile_jquery_theme_get_setting('header_data_position'),
+    'data-role' => 'header',
+  );
+  $vars['page']['attributes_array']['content'] = array(
+    'data-theme' => $use_global ? mobile_jquery_theme_get_setting('global_theme') : mobile_jquery_theme_get_setting('content_data_theme'),
+    'data-role' => 'content',
+  );
+  $vars['page']['attributes_array']['footer'] = array(
+    'data-theme' => $use_global ? mobile_jquery_theme_get_setting('global_theme') : mobile_jquery_theme_get_setting('footer_data_theme'),
+    'data-position' => mobile_jquery_theme_get_setting('global_footer_data_position') ? mobile_jquery_theme_get_setting('global_footer_data_position') : mobile_jquery_theme_get_setting('footer_data_position'),
+    'data-role' => 'footer',
+  );
+  if (!isset($vars['messages'])) {
+    $vars['messages'] = $vars['show_messages'] ? theme('status_messages') : '';
+  }
 }
 
 
@@ -127,7 +141,12 @@ function mobile_jquery_preprocess_page(&$vars) {
  * @see node.tpl.php
  */
 function mobile_jquery_preprocess_node(&$vars) {
-
+  $vars['is_list'] = FALSE;
+  if (module_exists('jquerymobile')) {
+    if (_jquerymobile_is_mobile_theme('mobile_jquery') && _jquerymobile_get_setting('mobile_jquery', 'front')) {
+      $vars['is_list'] = TRUE;
+    }
+  }
 }
 
 /**
@@ -163,22 +182,22 @@ function mobile_jquery_preprocess_block(&$vars) {
  * @see theme_block_admin_display()
  */
 function mobile_jquery_preprocess_block_admin_display_form(&$vars) {
-	if (isset($vars['block_listing'])) {
-	  foreach (element_children($vars['form']['blocks']) as $i) {
-	    $block = &$vars['form']['blocks'][$i];
-	    $region = (isset($block['region']['#default_value']) ? $block['region']['#default_value'] : BLOCK_REGION_NONE);
-	    if(isset($block['configure'])) {
-		    $block['configure']['#options']['attributes']['data-role'] = 'button';
-		    $block['configure']['#options']['attributes']['data-icon'] = 'configure';
-		    $vars['block_listing'][$region][$i]->configure_link = l($block['configure']['#title'], $block['configure']['#href'], $block['configure']['#options']);
-	    }
-	    if(isset($block['delete']) && !empty($block['delete'])) {
-		    $block['delete']['#options']['attributes']['data-role'] = 'button';
-		    $block['delete']['#options']['attributes']['data-icon'] = 'delete';
-		    $vars['block_listing'][$region][$i]->delete_link = l($block['delete']['#title'], $block['delete']['#href'], $block['delete']['#options']);
-	    }
-	  }
-	}
+  if (isset($vars['block_listing'])) {
+    foreach (element_children($vars['form']['blocks']) as $i) {
+      $block = &$vars['form']['blocks'][$i];
+      $region = (isset($block['region']['#default_value']) ? $block['region']['#default_value'] : BLOCK_REGION_NONE);
+      if (isset($block['configure'])) {
+        $block['configure']['#options']['attributes']['data-role'] = 'button';
+        $block['configure']['#options']['attributes']['data-icon'] = 'configure';
+        $vars['block_listing'][$region][$i]->configure_link = l($block['configure']['#title'], $block['configure']['#href'], $block['configure']['#options']);
+      }
+      if (isset($block['delete']) && !empty($block['delete'])) {
+        $block['delete']['#options']['attributes']['data-role'] = 'button';
+        $block['delete']['#options']['attributes']['data-icon'] = 'delete';
+        $vars['block_listing'][$region][$i]->delete_link = l($block['delete']['#title'], $block['delete']['#href'], $block['delete']['#options']);
+      }
+    }
+  }
 }
 
 /**
@@ -300,23 +319,23 @@ function mobile_jquery_preprocess_comment_wrapper(&$vars) {
  * Preprocesses variables for block-admin-display-form.tpl.php.
  */
 function mobile_jquery_preprocess_dashboard_admin_display_form(&$vars) {
-	mobile_jquery_preprocess_block_admin_display_form(&$vars);
-	if (isset($vars['block_listing'])) {
-	  foreach (element_children($vars['form']['blocks']) as $i) {
-	    $block = &$vars['form']['blocks'][$i];
-	    $region = (isset($block['region']['#default_value']) ? $block['region']['#default_value'] : BLOCK_REGION_NONE);
-	    if(isset($block['configure'])) {
-		    $block['configure']['#options']['attributes']['data-role'] = 'button';
-		    $block['configure']['#options']['attributes']['data-icon'] = 'configure';
-		    $vars['block_listing'][$region][$i]->configure_link = l($block['configure']['#title'], $block['configure']['#href'], $block['configure']['#options']);
-	    }
-	    if(isset($block['delete']) && !empty($block['delete'])) {
-		    $block['delete']['#options']['attributes']['data-role'] = 'button';
-		    $block['delete']['#options']['attributes']['data-icon'] = 'delete';
-		    $vars['block_listing'][$region][$i]->delete_link = l($block['delete']['#title'], $block['delete']['#href'], $block['delete']['#options']);
-	    }
-	  }
-	}
+  mobile_jquery_preprocess_block_admin_display_form($vars);
+  if (isset($vars['block_listing'])) {
+    foreach (element_children($vars['form']['blocks']) as $i) {
+      $block = &$vars['form']['blocks'][$i];
+      $region = (isset($block['region']['#default_value']) ? $block['region']['#default_value'] : BLOCK_REGION_NONE);
+      if (isset($block['configure'])) {
+        $block['configure']['#options']['attributes']['data-role'] = 'button';
+        $block['configure']['#options']['attributes']['data-icon'] = 'configure';
+        $vars['block_listing'][$region][$i]->configure_link = l($block['configure']['#title'], $block['configure']['#href'], $block['configure']['#options']);
+      }
+      if (isset($block['delete']) && !empty($block['delete'])) {
+        $block['delete']['#options']['attributes']['data-role'] = 'button';
+        $block['delete']['#options']['attributes']['data-icon'] = 'delete';
+        $vars['block_listing'][$region][$i]->delete_link = l($block['delete']['#title'], $block['delete']['#href'], $block['delete']['#options']);
+      }
+    }
+  }
 }
 
 
@@ -349,11 +368,11 @@ function mobile_jquery_preprocess_forums(&$vars) {
   $vid = variable_get('forum_nav_vocabulary', 0);
   $vocabulary = taxonomy_vocabulary_load($vid);
   $title = !empty($vocabulary->name) ? $vocabulary->name : '';
-	$options = array(
-		'attributes' => array(
-			'data-role' => 'button',
-		),
-	);
+  $options = array(
+    'attributes' => array(
+      'data-role' => 'button',
+    ),
+  );
   // Breadcrumb navigation:
   $breadcrumb[] = l(t('Home'), NULL, $options);
   if ($vars['tid']) {
@@ -437,10 +456,11 @@ function mobile_jquery_preprocess_forum_submitted(&$vars) {
  * Preprocesses the rendered tree for theme_menu_tree().
  */
 function mobile_jquery_preprocess_menu_tree(&$vars) {
-	$vars['attributes'] = array(
-		'data-theme' => mobile_jquery_theme_get_setting('use_global') ? mobile_jquery_theme_get_setting('global_theme') : mobile_jquery_theme_get_setting('menu_item_theme'),
-		'data-role' => 'listview'
-	);
+  $use_global = mobile_jquery_theme_get_setting('use_global');
+  $vars['attributes'] = array(
+    'data-theme' => $use_global ? mobile_jquery_theme_get_setting('global_theme') : mobile_jquery_theme_get_setting('menu_item_theme'),
+    'data-role' => 'listview'
+  );
 }
 
 

@@ -1,4 +1,8 @@
 <?php
+/**
+ * @file
+ * Contains theme override functions and preprocess functions for the mobile_jquery theme.
+ */
 
 /**
  * Returns HTML for a wrapper for a menu sub-tree.
@@ -11,15 +15,16 @@
  * @ingroup themeable
  */
 function mobile_jquery_menu_tree($vars) {
+  $use_global = mobile_jquery_theme_get_setting('use_global');
   $attributes = $vars['attributes'];
 
   $attributes['data-role'] = 'listview'; 
-  $attributes['data-inset'] = mobile_jquery_theme_get_setting('use_global') ? mobile_jquery_theme_get_setting('global_inset') : mobile_jquery_theme_get_setting('menu_item_inset'); 
-  $attributes['data-theme'] = mobile_jquery_theme_get_setting('use_global') ? mobile_jquery_theme_get_setting('global_theme') : mobile_jquery_theme_get_setting('menu_item_theme');
-  $attributes['data-divider-theme'] = mobile_jquery_theme_get_setting('use_global') ? mobile_jquery_theme_get_setting('global_theme') : mobile_jquery_theme_get_setting('menu_item_dividertheme');
-  $attributes['data-count-theme'] = mobile_jquery_theme_get_setting('use_global') ? mobile_jquery_theme_get_setting('global_theme') : mobile_jquery_theme_get_setting('menu_item_counttheme');
-  $attributes['data-split-theme'] = mobile_jquery_theme_get_setting('use_global') ? mobile_jquery_theme_get_setting('global_theme') : mobile_jquery_theme_get_setting('menu_item_splittheme');
-  $attributes['data-split-icon'] = mobile_jquery_theme_get_setting('use_global') ? mobile_jquery_theme_get_setting('global_icon') : mobile_jquery_theme_get_setting('menu_item_spliticon');
+  $attributes['data-inset'] = $use_global ? mobile_jquery_theme_get_setting('global_inset') : mobile_jquery_theme_get_setting('menu_item_inset'); 
+  $attributes['data-theme'] = $use_global ? mobile_jquery_theme_get_setting('global_theme') : mobile_jquery_theme_get_setting('menu_item_theme');
+  $attributes['data-divider-theme'] = $use_global ? mobile_jquery_theme_get_setting('global_theme') : mobile_jquery_theme_get_setting('menu_item_dividertheme');
+  $attributes['data-count-theme'] = $use_global ? mobile_jquery_theme_get_setting('global_theme') : mobile_jquery_theme_get_setting('menu_item_counttheme');
+  $attributes['data-split-theme'] = $use_global ? mobile_jquery_theme_get_setting('global_theme') : mobile_jquery_theme_get_setting('menu_item_splittheme');
+  $attributes['data-split-icon'] = $use_global ? mobile_jquery_theme_get_setting('global_icon') : mobile_jquery_theme_get_setting('menu_item_spliticon');
 
   return '<ul class="menu" ' . drupal_attributes($attributes) . '>' . $vars['tree'] . '</ul>';
 }
@@ -35,11 +40,17 @@ function mobile_jquery_menu_tree($vars) {
  */
 
 function mobile_jquery_menu_link(array $vars) {
-
+  
   $element = $vars['element'];
   $sub_menu = '';
-  if (module_exists('jquerymobile_ui')) {
-	  $element['#attributes'] = array_merge($element['#attributes'], jquerymobile_ui_get_link_attributes($element['#original_link']));
+  if (module_exists('jquerymobile')) {
+    $element['#attributes'] = array_merge($element['#attributes'], jquerymobile_get_link_attributes($element['#original_link']));
+  }
+
+  if (variable_get('admin_theme', 0) != 0 || variable_get('theme_default', '') != variable_get('admin_theme', 0)) {
+      if ( strpos($element['#href'], 'admin') !== FALSE) {
+        $element['#localized_options']['attributes']['rel'] = 'external';
+      }
   }
 
   if ($element['#below']) {
@@ -135,9 +146,9 @@ function mobile_jquery_menu_local_tasks(&$vars) {
 }
 
 function mobile_jquery_menu_breadcrumb_alter(&$active_trail, $item) {
-	foreach($active_trail as $trail => $crumb) {
-		$active_trail[$trail]['localized_options']['attributes']['data-role'] = 'button';
-	}
+  foreach ($active_trail as $trail => $crumb) {
+    $active_trail[$trail]['localized_options']['attributes']['data-role'] = 'button';
+  }
 }
 
 /**
@@ -169,9 +180,9 @@ function mobile_jquery_menu_overview_form($vars) {
       // Build a list of operations.
       $operations = array();
       foreach (element_children($element['operations']) as $op) {
-	      $element['operations'][$op]['#attributes']['data-role'] = 'button';
-	      $element['operations'][$op]['#attributes']['data-icon'] = $op;
-	      $element['operations'][$op]['#attributes']['data-iconpos'] = 'notext';
+        $element['operations'][$op]['#attributes']['data-role'] = 'button';
+        $element['operations'][$op]['#attributes']['data-icon'] = $op;
+        $element['operations'][$op]['#attributes']['data-iconpos'] = 'notext';
         $operations[] = array('data' => drupal_render($element['operations'][$op]), 'class' => array('menu-operations'));
       }
       while (count($operations) < 2) {

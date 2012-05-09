@@ -1,5 +1,10 @@
 <?php
 /**
+ * @file
+ * Contains theme override functions and preprocess functions for the mobile_jquery theme.
+ */
+
+/**
  * Returns HTML for a select form element.
  *
  * It is possible to group options together; to do this, change the format of
@@ -184,11 +189,11 @@ function mobile_jquery_checkboxes($vars) {
     $attributes['class'] = array_merge($attributes['class'], $element['#attributes']['class']);
   }
   
-  if(isset($element['#title'])) {
-	  $title = $element['#title'];
+  if (isset($element['#title'])) {
+    $title = $element['#title'];
   }
   else {
-	  $title = '';
+    $title = '';
   }
   return '<div' . drupal_attributes($attributes) . '><fieldset data-role="controlgroup"><legend>' . $title . '</legend>' . (!empty($element['#children']) ? $element['#children'] : '') . '</fieldset></div>';
 }
@@ -605,8 +610,8 @@ function mobile_jquery_form_element($vars) {
     $attributes['class'][] = 'form-disabled';
   }
 
-	$output = '';
-	
+  $output = '';
+  
   // If #title is not set, we don't display any label or required marker.
   if (!isset($element['#title'])) {
     $element['#title_display'] = 'none';
@@ -666,8 +671,8 @@ function mobile_jquery_form_element($vars) {
 function mobile_jquery_form_element_label($vars) {
   $element = $vars['element'];
   
-  if($element['#type'] == 'radios' || $element['#type'] == 'checkboxes') {
-	  return;
+  if ($element['#type'] == 'radios' || $element['#type'] == 'checkboxes') {
+    return;
   }
   // This is also used in the installer, pre-database setup.
   $t = get_t();
@@ -686,8 +691,8 @@ function mobile_jquery_form_element_label($vars) {
   // Show label only to screen readers to avoid disruption in visual flows.
   elseif ($element['#title_display'] == 'invisible') {
     $title = '&nbsp;';
-    if($element['#type'] == 'select'){
-	    $attributes['class'][] = 'element-invisible';
+    if ($element['#type'] == 'select') {
+      $attributes['class'][] = 'element-invisible';
     }
   }
 

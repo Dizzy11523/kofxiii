@@ -49,15 +49,15 @@
 
         <?php foreach ($block_listing[$region] as $delta => $data): ?>
         <div class="<?php print $grid_class; ?>">      
-          <div class="ui-block-a <?php print $row % 2 == 0 ? 'odd' : 'even'; ?><?php print $data->row_class ? ' '. $data->row_class : ''; ?>"><?php print $data->block_title; ?></div>
-          <div class="ui-block-b <?php print $row % 2 == 0 ? 'odd' : 'even'; ?><?php print $data->row_class ? ' '. $data->row_class : ''; ?>"><?php print $data->region_select; ?></div>
-          <div class="ui-block-c <?php print $row % 2 == 0 ? 'odd' : 'even'; ?><?php print $data->row_class ? ' '. $data->row_class : ''; ?>"><?php print $data->weight_select; ?></div>
-          <div class="ui-block-d <?php print $row % 2 == 0 ? 'odd' : 'even'; ?><?php print $data->row_class ? ' '. $data->row_class : ''; ?>">
-	          <div data-role="controlgroup">
-		          <?php print $data->configure_link; ?>
-		          <?php print $data->delete_link; ?>
-	          </div>
-	        </div>
+          <div class="ui-block-a <?php print $row % 2 == 0 ? 'odd' : 'even'; ?><?php print $data->row_class ? ' ' . $data->row_class : ''; ?>"><?php print $data->block_title; ?></div>
+          <div class="ui-block-b <?php print $row % 2 == 0 ? 'odd' : 'even'; ?><?php print $data->row_class ? ' ' . $data->row_class : ''; ?>"><?php print $data->region_select; ?></div>
+          <div class="ui-block-c <?php print $row % 2 == 0 ? 'odd' : 'even'; ?><?php print $data->row_class ? ' ' . $data->row_class : ''; ?>"><?php print $data->weight_select; ?></div>
+          <div class="ui-block-d <?php print $row % 2 == 0 ? 'odd' : 'even'; ?><?php print $data->row_class ? ' ' . $data->row_class : ''; ?>">
+            <div data-role="controlgroup">
+              <?php print $data->configure_link; ?>
+              <?php print $data->delete_link; ?>
+            </div>
+          </div>
         </div><!-- end <?php print $grid_class; ?> -->
        
         <?php $row++; ?>

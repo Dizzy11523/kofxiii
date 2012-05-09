@@ -40,19 +40,18 @@
  * @see template_preprocess_html()
  * @see template_process()
  */
-?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN"
-  "http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd">
+?>
+<!DOCTYPE html>
 <html>
 
 <head>
   <?php print $head; ?>
-  <?php if(!empty($viewport)): ?>
+  <?php if ($viewport): ?>
   <meta name="viewport" content="<?php print $viewport; ?>" /> 
   <?php endif; ?>
   <title><?php print $head_title; ?></title>
   <?php print $styles; ?>
   <?php print $scripts; ?>
-  <?php print $jqm_scripts; ?>
 </head>
 <body class="<?php print $classes; ?>" <?php print $attributes;?>>
   <?php print $page_top; ?>

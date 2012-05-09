@@ -1,4 +1,8 @@
 <?php
+/**
+ * @file
+ * Contains theme override functions and preprocess functions for the mobile_jquery theme.
+ */
 
 /**
  * A wrapper function for mobile_jquery_theme_get_settings().
@@ -16,28 +20,32 @@
  *   mobile_jquery_theme_get_setting().
  */
 function mobile_jquery_theme_get_setting($name, $theme = NULL) {
-	switch($name){
-		case 'exclude':
-			$setting = mobile_jquery_theme_get_info($name, $theme);
-			break;
-		default:
-		  $setting = theme_get_setting($name, $theme);
-			break;
+// If no key is given, use the current theme if we can determine it.
+  if (!isset($theme)) {
+    $theme = !empty($GLOBALS['theme_key']) ? $GLOBALS['theme_key'] : '';
+  }
+  switch ($name) {
+    case 'exclude':
+      $setting = mobile_jquery_theme_get_info($name, $theme);
+      break;
+    default:
+      $setting = theme_get_setting($name, $theme);
+      break;
   }
 
   return isset($setting) ? $setting : NULL; 
 }
 
 function mobile_jquery_get_settings($theme = NULL) {
-
+// If no key is given, use the current theme if we can determine it.
   if (!isset($theme)) {
     $theme = !empty($GLOBALS['theme_key']) ? $GLOBALS['theme_key'] : '';
   }
-	if($theme) {
-		$themes = list_themes();
+  if ($theme) {
+    $themes = list_themes();
     $theme_object = $themes[$theme];
-	}
-	return $theme_object->info['settings'];
+  }
+  return $theme_object->info['settings'];
 }
 
 
@@ -71,5 +79,31 @@ function mobile_jquery_theme_get_info($setting_name, $theme = NULL) {
   return $output;
 }
 
+function mobile_jquery_get_viewport() {
+  $use_viewport = mobile_jquery_theme_get_setting('viewport');
+  $viewport = array();
 
+  if ($use_viewport) {
+    if (is_numeric(mobile_jquery_theme_get_setting('viewport_width'))) {
+      $viewport[] = 'width=' . mobile_jquery_theme_get_setting('viewport_width');
+    }
+    else {
+      $viewport[] = 'width=device-width';
+    }
+    if (is_numeric(mobile_jquery_theme_get_setting('viewport_initial_scale'))) {
+      $viewport[] = 'initial-scale=' . mobile_jquery_theme_get_setting('viewport_initial_scale');
+    }
+    if (is_numeric(mobile_jquery_theme_get_setting('viewport_min_scale'))) {
+      $viewport[] = 'minimum-scale=' . mobile_jquery_theme_get_setting('viewport_min_scale');
+    }
+    if (is_numeric(mobile_jquery_theme_get_setting('viewport_max_scale'))) {
+      $viewport[] = 'maximum-scale=' . mobile_jquery_theme_get_setting('viewport_max_scale');
+    }
+    if (is_numeric(mobile_jquery_theme_get_setting('viewport_user_scalable'))) {
+      $viewport[] = 'user-scalable=' . mobile_jquery_theme_get_setting('viewport_user_scalable');
+    }
+  } 
+  
+  return $viewport;
+}
 

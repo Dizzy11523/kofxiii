@@ -1,4 +1,8 @@
 <?php
+/**
+ * @file
+ * Contains theme override functions and preprocess functions for the mobile_jquery theme.
+ */
 
 /**
  * Returns HTML for the date settings form.
@@ -85,18 +89,19 @@ function mobile_jquery_admin_block($vars) {
  * @ingroup themeable
  */
 function mobile_jquery_admin_block_content($vars) {
+  $use_global = mobile_jquery_theme_get_setting('use_global');
   $content = $vars['content'];
   $output = '';
   
   $attributes = array();
 
   $attributes['data-role'] = 'listview'; 
-  $attributes['data-inset'] = mobile_jquery_theme_get_setting('use_global') ? mobile_jquery_theme_get_setting('global_inset') : mobile_jquery_theme_get_setting('menu_item_inset'); 
-  $attributes['data-theme'] = mobile_jquery_theme_get_setting('use_global') ? mobile_jquery_theme_get_setting('global_theme') : mobile_jquery_theme_get_setting('menu_item_theme');
-  $attributes['data-divider-theme'] = mobile_jquery_theme_get_setting('use_global') ? mobile_jquery_theme_get_setting('global_theme') : mobile_jquery_theme_get_setting('menu_item_dividertheme');
-  $attributes['data-count-theme'] = mobile_jquery_theme_get_setting('use_global') ? mobile_jquery_theme_get_setting('global_theme') : mobile_jquery_theme_get_setting('menu_item_counttheme');
-  $attributes['data-split-theme'] = mobile_jquery_theme_get_setting('use_global') ? mobile_jquery_theme_get_setting('global_theme') : mobile_jquery_theme_get_setting('menu_item_splittheme');
-  $attributes['data-split-icon'] = mobile_jquery_theme_get_setting('use_global') ? mobile_jquery_theme_get_setting('global_icon') : mobile_jquery_theme_get_setting('menu_item_spliticon');
+  $attributes['data-inset'] = $use_global ? mobile_jquery_theme_get_setting('global_inset') : mobile_jquery_theme_get_setting('menu_item_inset'); 
+  $attributes['data-theme'] = $use_global ? mobile_jquery_theme_get_setting('global_theme') : mobile_jquery_theme_get_setting('menu_item_theme');
+  $attributes['data-divider-theme'] = $use_global ? mobile_jquery_theme_get_setting('global_theme') : mobile_jquery_theme_get_setting('menu_item_dividertheme');
+  $attributes['data-count-theme'] = $use_global ? mobile_jquery_theme_get_setting('global_theme') : mobile_jquery_theme_get_setting('menu_item_counttheme');
+  $attributes['data-split-theme'] = $use_global ? mobile_jquery_theme_get_setting('global_theme') : mobile_jquery_theme_get_setting('menu_item_splittheme');
+  $attributes['data-split-icon'] = $use_global ? mobile_jquery_theme_get_setting('global_icon') : mobile_jquery_theme_get_setting('menu_item_spliticon');
 
   if (!empty($content)) {
 
@@ -105,10 +110,10 @@ function mobile_jquery_admin_block_content($vars) {
       $class .= ' compact';
     }
 
-		$output = '<ul ' . drupal_attributes($attributes) .  '>';
+    $output = '<ul ' . drupal_attributes($attributes) . '>';
 
     foreach ($content as $item) {
-	    $item['localized_options']['html'] = TRUE;
+      $item['localized_options']['html'] = TRUE;
       $link = '<h3>' . $item['title'] . '</h3>';
       if (!$compact && isset($item['description'])) {
         $link .= '<p>' . filter_xss_admin(strip_tags($item['description'])) . '</p>';
@@ -292,13 +297,13 @@ function mobile_jquery_system_modules_fieldset($vars) {
     //$module['enable']['#title'] = $module['name'];
     $mod = array();
     
-    foreach($module['enable'] as $key => $value) {
-	    if($key === '#title') {
-				$mod[$key] = $module['name']['#markup'];
-	    }
-	    else {
-		    $mod[$key] = $value;
-	    }
+    foreach ($module['enable'] as $key => $value) {
+      if ($key === '#title') {
+        $mod[$key] = $module['name']['#markup'];
+      }
+      else {
+        $mod[$key] = $value;
+      }
     }
 
     $output .= '<div class="ui-block-a checkbox">' . drupal_render($mod) . '</div>';
@@ -318,13 +323,13 @@ function mobile_jquery_system_modules_fieldset($vars) {
     // Display links (such as help or permissions) in their own columns.
     $links = '';
     foreach (array('help', 'permissions', 'configure') as $key) {
-	    $module['links'][$key]['#attributes'] = array('data-role' => 'button', 'data-icon' => $key, 'data-iconpos' => 'notext');
+      $module['links'][$key]['#attributes'] = array('data-role' => 'button', 'data-icon' => $key, 'data-iconpos' => 'notext');
       $links .= drupal_render($module['links'][$key]);
     }
     $output .= '<div class="ui-block-c">' . $links . '</div>';
   }
 
-	$output .=  '</div>';
+  $output .=  '</div>';
   return $output;
 }
 
@@ -347,7 +352,7 @@ function mobile_jquery_system_modules_uninstall($vars) {
 
   // Table headers.
   $header = array(
-	  t('Uninstall'),
+    t('Uninstall'),
     t('Name'),
     t('Description'),
   );
@@ -373,7 +378,7 @@ function mobile_jquery_system_modules_uninstall($vars) {
     );
   }
 
-  $output  = theme('table', array('header' => $header, 'rows' => $rows, 'empty' => t('No modules are available to uninstall.')));
+  $output = theme('table', array('header' => $header, 'rows' => $rows, 'empty' => t('No modules are available to uninstall.')));
   $output .= drupal_render_children($form);
 
   return $output;
@@ -399,12 +404,12 @@ function mobile_jquery_system_themes_page($vars) {
       continue;
     }
     // Start new theme group.
-    $attributes = array('class' => array('system-themes-list', 'system-themes-list-'. $state, 'clearfix'));
+    $attributes = array('class' => array('system-themes-list', 'system-themes-list-' . $state, 'clearfix'));
     $attributes['data-role'] = "collapsible";
-    if($state != 'enabled') {
-	    $attributes['data-collapsed'] = "true";
+    if ($state != 'enabled') {
+      $attributes['data-collapsed'] = "true";
     }
-    $output .= '<div ' . drupal_attributes($attributes) . '><h2>'. $title .'</h2>';
+    $output .= '<div ' . drupal_attributes($attributes) . '><h2>' . $title . '</h2>';
 
     foreach ($theme_groups[$state] as $theme) {
 
@@ -418,24 +423,24 @@ function mobile_jquery_system_themes_page($vars) {
       $notes = count($theme->notes) ? ' (' . join(', ', $theme->notes) . ')' : '';
       $theme->classes[] = 'theme-selector';
       $theme->classes[] = 'clearfix';
-      $output .= '<div class="'. join(' ', $theme->classes) .'"><div class="theme-info"><h3>' . $theme->info['name'] . ' ' . (isset($theme->info['version']) ? $theme->info['version'] : '') . $notes . '</h3><div class="theme-description">' . $description . '</div>';
+      $output .= '<div class="' . join(' ', $theme->classes) . '"><div class="theme-info"><h3>' . $theme->info['name'] . ' ' . (isset($theme->info['version']) ? $theme->info['version'] : '') . $notes . '</h3><div class="theme-description">' . $description . '</div>';
       $output .= '<div>' . $screenshot . '</div>';
 
       // Make sure to provide feedback on compatibility.
       if (!empty($theme->incompatible_core)) {
-        $output .= '<div class="incompatible">' . t('This version is not compatible with Drupal !core_version and should be replaced.', array('!core_version' => DRUPAL_CORE_COMPATIBILITY)) . '</div>';
+        $output .= '<div class="incompatible">' . t('This version is not compatible with Drupal !core_version and should be replaced. ', array('!core_version' => DRUPAL_CORE_COMPATIBILITY)) . '</div>';
       }
       elseif (!empty($theme->incompatible_php)) {
         if (substr_count($theme->info['php'], '.') < 2) {
           $theme->info['php'] .= '.*';
         }
-        $output .= '<div class="incompatible">' . t('This theme requires PHP version @php_required and is incompatible with PHP version !php_version.', array('@php_required' => $theme->info['php'], '!php_version' => phpversion())) . '</div>';
+        $output .= '<div class="incompatible">' . t('This theme requires PHP version @php_required and is incompatible with PHP version !php_version. ', array('@php_required' => $theme->info['php'], '!php_version' => phpversion())) . '</div>';
       }
       else {
         $output .= '<div data-role="controlgroup" data-type="horizontal">';
-        foreach($theme->operations as $key => $value) {
-	        $theme->operations[$key]['attributes']['data-role'] = 'button';
-	        $output .= l($theme->operations[$key]['title'], $theme->operations[$key]['href'], array('attributes' => $theme->operations[$key]['attributes']));
+        foreach ($theme->operations as $key => $value) {
+          $theme->operations[$key]['attributes']['data-role'] = 'button';
+          $output .= l($theme->operations[$key]['title'], $theme->operations[$key]['href'], array('attributes' => $theme->operations[$key]['attributes']));
         }
         //$output .= theme('links', array('links' => $theme->operations, 'attributes' => array('class' => array('operations', 'clearfix'))));
 
@@ -490,11 +495,11 @@ function mobile_jquery_system_powered_by() {
  * @ingroup themeable
  */
 function mobile_jquery_confirm_form($vars) {
-	$form = $vars['form'];
-	
-	$form['actions']['cancel']['#attributes'] += array(
-		'data-role' => 'button',
-	);
+  $form = $vars['form'];
+  
+  $form['actions']['cancel']['#attributes'] += array(
+    'data-role' => 'button',
+  );
 
   return drupal_render_children($form);
 }

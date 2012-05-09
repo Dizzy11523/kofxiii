@@ -1,5 +1,8 @@
 <?php
-
+/**
+ * @file
+ * Contains theme override functions and preprocess functions for the mobile_jquery theme.
+ */
 
 /**
  * Returns HTML for the page containing the list of image styles.
@@ -45,7 +48,7 @@ function mobile_jquery_image_style_list($vars) {
   if (empty($rows)) {
     $rows[] = array(array(
       'colspan' => 4,
-      'data' => t('There are currently no styles. <a href="!url">Add a new one</a>.', array('!url' => url('admin/config/media/image-styles/add'))),
+      'data' => t('There are currently no styles. <a href="!url">Add a new one</a>. ', array('!url' => url('admin/config/media/image-styles/add'))),
     ));
   }
 
@@ -162,7 +165,7 @@ function mobile_jquery_image_style_preview($vars) {
   // Build the preview of the original image.
   $original_url = file_create_url($original_path);
   $output .= '<div class="preview-image-wrapper">';
-  $output .= t('original') . ' (' . l(t('view actual size'), $original_url) . ')';
+  $output .= t('original') . ' (' . l(t('view actual size'), $original_url) .')';
   $output .= '<div class="preview-image original-image" style="' . $original_attributes['style'] . '">';
   $output .= '<a href="' . $original_url . '">' . theme('image', array('path' => $original_path, 'alt' => t('Sample original image'), 'title' => '', 'attributes' => $original_attributes)) . '</a>';
   $output .= '<div class="height" style="height: ' . $original_height . 'px"><span>' . $original_image['height'] . 'px</span></div>';
@@ -173,7 +176,7 @@ function mobile_jquery_image_style_preview($vars) {
   // Build the preview of the image style.
   $preview_url = file_create_url($preview_file) . '?cache_bypass=' . REQUEST_TIME;
   $output .= '<div class="preview-image-wrapper">';
-  $output .= check_plain($style['name']) . ' (' . l(t('view actual size'), file_create_url($preview_file) . '?' . time()) . ')';
+  $output .= check_plain($style['name']) . ' (' . l(t('view actual size'), file_create_url($preview_file) . '?' . time()) .')';
   $output .= '<div class="preview-image modified-image" style="' . $preview_attributes['style'] . '">';
   $output .= '<a href="' . file_create_url($preview_file) . '?' . time() . '">' . theme('image', array('path' => $preview_url, 'alt' => t('Sample modified image'), 'title' => '', 'attributes' => $preview_attributes)) . '</a>';
   $output .= '<div class="height" style="height: ' . $preview_height . 'px"><span>' . $preview_image['height'] . 'px</span></div>';
@@ -244,7 +247,7 @@ function mobile_jquery_image_resize_summary($vars) {
  */
 function mobile_jquery_image_scale_summary($vars) {
   $data = $vars['data'];
-  return theme('image_resize_summary', array('data' => $data)) . ' ' . ($data['upscale'] ? '(' . t('upscaling allowed') . ')' : '');
+  return theme('image_resize_summary', array('data' => $data)) . ' ' . ($data['upscale'] ? '(' . t('upscaling allowed') .')' : '');
 }
 
 /**
@@ -296,7 +299,7 @@ function mobile_jquery_image_widget($vars) {
 
   $output .= '<div class="image-widget-data">';
   if ($element['fid']['#value'] != 0) {
-    $element['filename']['#markup'] .= ' <span class="file-size">(' . format_size($element['#file']->filesize) . ')</span> ';
+    $element['filename']['#markup'] .= ' <span class="file-size">(' . format_size($element['#file']->filesize) .')</span>';
   }
   $output .= drupal_render_children($element);
   $output .= '</div>';

@@ -78,12 +78,12 @@
  * @see template_process()
  */
 ?>
-<?php if (module_exists('jquerymobile_ui') && variable_get('jquerymobile_ui_front', TRUE) && $is_front): ?>
-		<?php
-			hide($content['comments']);
-			hide($content['links']);
-			print l('<h2>' . $node->title . '</h2>' . render($content), $node->uri['path'], array('html' => TRUE)); 
-		?>
+<?php if ($is_list && $is_front): ?>
+    <?php
+      hide($content['comments']);
+      hide($content['links']);
+      print l(theme('html_tag', array('#tag' =>'h2', '#value' => $node->title, '#attributes' => array('class' => 'savino'))) . render($content), $node->uri['path'], array('html' => TRUE)); 
+    ?>
 <?php else: ?>
 <div id="node-<?php print $node->nid; ?>" class="<?php print $classes; ?> clearfix"<?php print $attributes; ?>>
 

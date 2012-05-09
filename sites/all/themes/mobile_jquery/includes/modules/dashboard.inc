@@ -1,4 +1,8 @@
 <?php
+/**
+ * @file
+ * Contains theme override functions and preprocess functions for the mobile_jquery theme.
+ */
 
 /**
  * Returns HTML for the entire dashboard.
@@ -64,7 +68,7 @@ function mobile_jquery_dashboard_region($vars) {
  */
 function mobile_jquery_dashboard_disabled_blocks($vars) {
   extract($vars);
-  $output = '<div class="canvas-content"><p>' . t('Drag and drop these blocks to the columns below. Changes are automatically saved. More options are available on the <a href="@dashboard-url">configuration page</a>.', array('@dashboard-url' => url('admin/dashboard/configure'))) . '</p>';
+  $output = '<div class="canvas-content"><p>' . t('Drag and drop these blocks to the columns below. Changes are automatically saved. More options are available on the <a href="@dashboard-url">configuration page</a>. ', array('@dashboard-url' => url('admin/dashboard/configure'))) . '</p>';
   $output .= '<div id="disabled-blocks"><div class="region disabled-blocks clearfix">';
   foreach ($blocks as $block) {
     $output .= theme('dashboard_disabled_block', array('block' => $block));
@@ -89,11 +93,11 @@ function mobile_jquery_dashboard_disabled_block($vars) {
   $output = "";
   if (isset($block)) {
     $output .= '<div id="block-' . $block['module'] . '-' . $block['delta']
-    . '" class="disabled-block block block-' . $block['module'] . '-' . $block['delta']
-    . ' module-' . $block['module'] . ' delta-' . $block['delta'] . '">'
-    . '<h2>' . (!empty($block['title']) && $block['title'] != '<none>' ? check_plain($block['title']) : check_plain($block['info'])) . '</h2>'
-    . '<div class="content"></div>'
-    . '</div>';
+   . '" class="disabled-block block block-' . $block['module'] . '-' . $block['delta']
+   . ' module-' . $block['module'] . ' delta-' . $block['delta'] . '">'
+   . '<h2>' . (!empty($block['title']) && $block['title'] != '<none>' ? check_plain($block['title']) : check_plain($block['info'])) . '</h2>'
+   . '<div class="content"></div>'
+   . '</div>';
   }
   return $output;
 }
